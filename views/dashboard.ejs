@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeZone - Database Dashboard</title>
+    <link rel="stylesheet" href="/css/safezone-design-system.css">
+    <link rel="stylesheet" href="/css/unified-admin-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        function toggleTable(containerId) {
+            var container = document.getElementById(containerId);
+            var allContainers = document.querySelectorAll('.table-container');
+
+            // Remove active class from all containers
+            allContainers.forEach(function(c) {
+                if (c.id !== containerId) {
+                    c.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked container
+            container.classList.toggle('active');
+        }
+
+        function navigateBack() {
+            window.history.back();
+        }
+    </script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-shield-alt"></i>
+            <div class="sidebar-logo-text">
+                <h2>SafeZone</h2>
+                <p>Admin Portal</p>
+            </div>
+        </div>
+
+        <button class="nav-button" onclick="navigateBack()">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </button>
+        <a href="/">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Live Tracking</span>
+        </a>
+        <a href="/dashboard" class="active">
+            <i class="fas fa-database"></i>
+            <span>Database</span>
+        </a>
+        <a href="/logs/view">
+            <i class="fas fa-list-alt"></i>
+            <span>Request Logs</span>
+        </a>
+        <a href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1>Database Dashboard</h1>
+            <p>View and manage system data across all tables</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Client Users</h3>
+                        <div class="stat-value"><%= data.client_users.length %></div>
+                    </div>
+                    <div class="stat-card-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Server Users</h3>
+                        <div class="stat-value"><%= data.server_users.length %></div>
+                    </div>
+                    <div class="stat-card-icon green">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Emergency Signals</h3>
+                        <div class="stat-value"><%= data.emergency_signals.length %></div>
+                    </div>
+                    <div class="stat-card-icon red">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Users Table -->
+        <div id="clientUsers" class="table-container">
+            <h2 onclick="toggleTable('clientUsers')">
+                <i class="fas fa-users"></i>
+                Client Users
+            </h2>
+            <% if (data.client_users.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <% Object.keys(data.client_users[0]).forEach(function(column) { %>
+                                <th><%= column %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.client_users.forEach(function(row) { %>
+                            <tr>
+                                <% Object.keys(row).forEach(function(column) { %>
+                                    <td><%= row[column] %></td>
+                                <% }); %>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p style="color: var(--slate-400); text-align: center; padding: 20px;">No client users found</p>
+            <% } %>
+        </div>
+
+        <!-- Server Users Table -->
+        <div id="serverUsers" class="table-container">
+            <h2 onclick="toggleTable('serverUsers')">
+                <i class="fas fa-user-shield"></i>
+                Server Users
+            </h2>
+            <% if (data.server_users.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <% Object.keys(data.server_users[0]).forEach(function(column) { %>
+                                <th><%= column %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.server_users.forEach(function(row) { %>
+                            <tr>
+                                <% Object.keys(row).forEach(function(column) { %>
+                                    <td><%= row[column] %></td>
+                                <% }); %>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p style="color: var(--slate-400); text-align: center; padding: 20px;">No server users found</p>
+            <% } %>
+        </div>
+
+        <!-- Emergency Signals Table -->
+        <div id="emergencySignals" class="table-container">
+            <h2 onclick="toggleTable('emergencySignals')">
+                <i class="fas fa-exclamation-triangle"></i>
+                Emergency Signals
+            </h2>
+            <% if (data.emergency_signals.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <% Object.keys(data.emergency_signals[0]).forEach(function(column) { %>
+                                <th><%= column %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.emergency_signals.forEach(function(row) { %>
+                            <tr>
+                                <% Object.keys(row).forEach(function(column) { %>
+                                    <td><%= row[column] %></td>
+                                <% }); %>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p style="color: var(--slate-400); text-align: center; padding: 20px;">No emergency signals found</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 SafeZone. All rights reserved.</p>
+    </footer>
+</body>
+</html>

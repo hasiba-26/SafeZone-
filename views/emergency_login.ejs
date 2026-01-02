@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Login - SafeZone</title>
+    <link rel="stylesheet" href="/css/safezone-design-system.css">
+    <link rel="stylesheet" href="/css/unified-auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <!-- Background Orbs -->
+        <div class="auth-background-orb orb-1"></div>
+        <div class="auth-background-orb orb-2"></div>
+        <div class="auth-background-orb orb-3"></div>
+
+        <div class="auth-container-unified">
+            <div class="auth-card-unified">
+                <!-- Logo Section -->
+                <div class="auth-logo-section">
+                    <div class="auth-logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h1 class="auth-title">SafeZone</h1>
+                    <p class="auth-subtitle">Emergency Response System</p>
+                </div>
+
+                <!-- Alert Messages -->
+                <% if (typeof error !== 'undefined') { %>
+                    <div class="auth-alert auth-alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span><%= error %></span>
+                    </div>
+                <% } %>
+
+                <!-- Login Form -->
+                <form action="/emergency_login" method="POST" class="auth-form">
+                    <div class="auth-form-group">
+                        <label for="email" class="auth-form-label">
+                            <i class="fas fa-envelope"></i>
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="auth-form-input"
+                            placeholder="your.email@example.com"
+                            required
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="password" class="auth-form-label">
+                            <i class="fas fa-lock"></i>
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="auth-form-input"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn">
+                        <span>Access Emergency System</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Footer -->
+                <div class="auth-footer">
+                    <p class="auth-footer-text">
+                        Don't have an account?
+                        <a href="/emergency_signup" class="auth-footer-link">Create Account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

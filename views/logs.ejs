@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeZone - Request Logs</title>
+    <link rel="stylesheet" href="/css/safezone-design-system.css">
+    <link rel="stylesheet" href="/css/unified-admin-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Full height layout */
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background: #0F172A;
+        }
+
+        .main-content {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 24px;
+        }
+
+        /* Remove page header */
+        .page-header {
+            display: none;
+        }
+
+        /* Compact stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .stat-card:nth-child(1)::before {
+            background: #6B7280;
+        }
+
+        .stat-card:nth-child(2)::before {
+            background: #EF4444;
+        }
+
+        .stat-card:nth-child(3)::before {
+            background: #3B82F6;
+        }
+
+        .stat-card:nth-child(4)::before {
+            background: #F97316;
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-card-content h3 {
+            font-size: 11px;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stat-card-content .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card:nth-child(1) .stat-card-icon {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9CA3AF;
+        }
+
+        .stat-card:nth-child(2) .stat-card-icon {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .stat-card:nth-child(3) .stat-card-icon {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3B82F6;
+        }
+
+        .stat-card:nth-child(4) .stat-card-icon {
+            background: rgba(249, 115, 22, 0.2);
+            color: #F97316;
+        }
+
+        .stat-card-icon i {
+            font-size: 20px;
+        }
+
+        /* Filter bar */
+        .logs-filter-bar {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logs-filter-bar span {
+            color: #94A3B8;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            background: rgba(30, 41, 59, 0.4);
+            color: #CBD5E1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-badge:hover {
+            background: rgba(51, 65, 85, 0.6);
+            border-color: rgba(100, 116, 139, 0.6);
+        }
+
+        .filter-badge.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8B5CF6;
+            color: #C4B5FD;
+        }
+
+        /* Table container */
+        .table-container {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .table-container h2 {
+            font-size: 16px;
+            color: white;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .table-container h2 i {
+            color: #EF4444;
+        }
+
+        /* Table styling */
+        .table-container table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .table-container th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+        }
+
+        .table-container tbody {
+            display: block;
+            overflow-y: auto;
+            max-height: calc(100vh - 400px);
+        }
+
+        .table-container thead,
+        .table-container tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .log-row {
+            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+            transition: background 0.2s ease;
+        }
+
+        .log-row:hover {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .log-row td {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #CBD5E1;
+            vertical-align: middle;
+        }
+
+        /* Column widths */
+        .table-container th:nth-child(1),
+        .log-row td:nth-child(1) {
+            width: 8%;
+        }
+
+        .table-container th:nth-child(2),
+        .log-row td:nth-child(2) {
+            width: 15%;
+        }
+
+        .table-container th:nth-child(3),
+        .log-row td:nth-child(3) {
+            width: 22%;
+        }
+
+        .table-container th:nth-child(4),
+        .log-row td:nth-child(4) {
+            width: 18%;
+        }
+
+        .table-container th:nth-child(5),
+        .log-row td:nth-child(5) {
+            width: 12%;
+            text-align: center;
+        }
+
+        .table-container th:nth-child(6),
+        .log-row td:nth-child(6) {
+            width: 15%;
+        }
+
+        /* ID column */
+        .log-row td:first-child {
+            color: #94A3B8;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Type badges */
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .type-badge.police {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .type-badge.health {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .type-badge.fire {
+            background: rgba(249, 115, 22, 0.15);
+            color: #FB923C;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .type-badge i {
+            font-size: 11px;
+        }
+
+        /* Location link */
+        .location-link {
+            color: #60A5FA;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            transition: color 0.2s ease;
+        }
+
+        .location-link:hover {
+            color: #93C5FD;
+        }
+
+        .location-link i {
+            font-size: 11px;
+        }
+
+        /* Count badge */
+        .count-badge {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #FBBF24;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        /* Elapsed badge */
+        .elapsed-badge {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #FBBF24;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 16px 24px;
+            color: #64748B;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer i {
+            color: #8B5CF6;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748B;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* Scrollbar styling */
+        .table-container tbody::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-container tbody::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 4px;
+        }
+
+        .table-container tbody::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 4px;
+        }
+
+        .table-container tbody::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-shield-alt"></i>
+            <div class="sidebar-logo-text">
+                <h2>SafeZone</h2>
+                <p>Admin Portal</p>
+            </div>
+        </div>
+
+        <button class="nav-button" onclick="navigateBack()">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </button>
+        <a href="/">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Live Tracking</span>
+        </a>
+        <a href="/dashboard">
+            <i class="fas fa-database"></i>
+            <span>Database</span>
+        </a>
+        <a href="/logs/view" class="active">
+            <i class="fas fa-list-alt"></i>
+            <span>Request Logs</span>
+        </a>
+        <a href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Total Requests</h3>
+                        <div class="stat-value"><%= logs.length %></div>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Medical</h3>
+                        <div class="stat-value"><%= logs.filter(l => l.type === 'health').length %></div>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Police</h3>
+                        <div class="stat-value"><%= logs.filter(l => l.type === 'police').length %></div>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <h3>Fire</h3>
+                        <div class="stat-value"><%= logs.filter(l => l.type === 'fire').length %></div>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-fire-extinguisher"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="logs-filter-bar">
+            <span><i class="fas fa-filter"></i> Filter:</span>
+            <div class="filter-badge active" onclick="filterLogs('all')">All Types</div>
+            <div class="filter-badge" onclick="filterLogs('health')">
+                <i class="fas fa-heartbeat"></i> Medical
+            </div>
+            <div class="filter-badge" onclick="filterLogs('police')">
+                <i class="fas fa-shield-alt"></i> Police
+            </div>
+            <div class="filter-badge" onclick="filterLogs('fire')">
+                <i class="fas fa-fire-extinguisher"></i> Fire
+            </div>
+        </div>
+
+        <!-- Emergency Signal History Table -->
+        <div class="table-container">
+            <h2>
+                <i class="fas fa-list-alt"></i>
+                Emergency Signal History
+            </h2>
+
+            <% if (logs.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>TYPE</th>
+                            <th>LOCATION</th>
+                            <th>TIME</th>
+                            <th>COUNT</th>
+                            <th>ELAPSED</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% logs.forEach(function(log) {
+                            const timeSinceLastRequest = Math.round((new Date() - new Date(log.timestamp)) / 1000);
+                            let timeDisplay = '';
+                            if (timeSinceLastRequest < 60) {
+                                timeDisplay = timeSinceLastRequest + 's ago';
+                            } else if (timeSinceLastRequest < 3600) {
+                                timeDisplay = Math.floor(timeSinceLastRequest / 60) + 'm ago';
+                            } else if (timeSinceLastRequest < 86400) {
+                                timeDisplay = Math.floor(timeSinceLastRequest / 3600) + 'h ago';
+                            } else {
+                                timeDisplay = Math.floor(timeSinceLastRequest / 86400) + 'd ago';
+                            }
+                        %>
+                            <tr class="log-row" data-type="<%= log.type %>"
+                                title="IP: <%= log.ip_address %> | Full Time: <%= new Date(log.timestamp).toLocaleString() %>">
+                                <td>#<%= log.user_id %></td>
+                                <td>
+                                    <span class="type-badge <%= log.type %>">
+                                        <% if (log.type === 'health') { %>
+                                            <i class="fas fa-heartbeat"></i> MED
+                                        <% } else if (log.type === 'police') { %>
+                                            <i class="fas fa-shield-alt"></i> POLICE
+                                        <% } else if (log.type === 'fire') { %>
+                                            <i class="fas fa-fire-extinguisher"></i> FIRE
+                                        <% } %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="https://www.google.com/maps?q=<%= log.latitude %>,<%= log.longitude %>"
+                                       target="_blank"
+                                       class="location-link"
+                                       title="<%= log.latitude %>, <%= log.longitude %>">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <%= log.latitude.toFixed(2) %>,<%= log.longitude.toFixed(2) %>
+                                    </a>
+                                </td>
+                                <td>
+                                    <%= new Date(log.timestamp).toLocaleString('en-US', {
+                                        month: 'numeric',
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: '2-digit'
+                                    }).replace(',', '') %>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="count-badge"><%= log.request_count %></span>
+                                </td>
+                                <td>
+                                    <span class="elapsed-badge"><%= timeDisplay %></span>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3 style="color: #94A3B8; margin-bottom: 8px;">No Emergency Logs</h3>
+                    <p>No emergency signals have been recorded yet.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <i class="fas fa-gem"></i>
+        <span>© 2026 SafeZone. All rights reserved</span>
+    </footer>
+
+    <script>
+        function navigateBack() {
+            window.history.back();
+        }
+
+        function filterLogs(type) {
+            const rows = document.querySelectorAll('.log-row');
+            const badges = document.querySelectorAll('.filter-badge');
+
+            badges.forEach(badge => badge.classList.remove('active'));
+            event.target.classList.add('active');
+
+            rows.forEach(row => {
+                if (type === 'all' || row.dataset.type === type) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
