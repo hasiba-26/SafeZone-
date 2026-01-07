@@ -113,24 +113,24 @@ The system architecture is divided into several key components:
   
 ## Project Highlights for Recruiters
 
-- **End-to-end full-stack development
+- End-to-end full-stack development
 
-- **Real-time systems using WebSockets
+- Real-time systems using WebSockets
 
-- **Geospatial data integration
+- Geospatial data integration
 
-- **Secure authentication & role-based access
+- Secure authentication & role-based access
 
-- **Practical application in public safety and emergency response
+- Practical application in public safety and emergency response
 
 ## Future Improvements
 
-- **Mobile app version (React Native)
+- Mobile app version (React Native)
 
-- **Push notifications
+- Push notifications
 
-- **AI-based risk detection
+- AI-based risk detection
 
-- **Role-based analytics dashboard
+- Role-based analytics dashboard
 
-- **Deployment on cloud (AWS/GCP)
+- Deployment on cloud (AWS/GCP)
